@@ -39,7 +39,7 @@ export function FeaturedProducts() {
     return (
         <section id="products" className="py-24 bg-stone-50">
             <div className="container px-4 md:px-6">
-                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-12 gap-4">
                     <div>
                         <h2 className="text-3xl font-bold tracking-tight mb-2">Our Flavours</h2>
                         <p className="text-muted-foreground text-lg">Hand-picked varieties for every taste bud.</p>
