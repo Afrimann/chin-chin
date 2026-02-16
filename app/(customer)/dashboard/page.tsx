@@ -9,9 +9,9 @@ import { PRODUCTS } from "@/lib/mock-data";
 export default async function CustomerHomePage() {
     const user = await currentUser();
 
-    if (!user) return <RedirectToSignIn />;
+    // if (!user) return <RedirectToSignIn />;
 
-    const firstName = user.firstName || "Friend";
+    const firstName = user?.firstName || "Friend";
 
     return (
         <div className="space-y-8 pb-20">
