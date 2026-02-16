@@ -10,9 +10,9 @@ export default async function CustomerLayout({
 }) {
     const { userId } = await auth();
 
-    if (!userId) {
-        redirect("/auth/sign-in");
-    }
+    // if (!userId) {
+    //     redirect("/auth/sign-in");
+    // }
 
     return (
         <div className="flex min-h-screen flex-col bg-background">
