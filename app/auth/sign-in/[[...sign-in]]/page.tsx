@@ -75,7 +75,11 @@ export default function SignInPage() {
             }
 
             if (result.status === "needs_second_factor") {
+                await signIn.prepareSecondFactor({
+                    strategy: "email_code",
+                });
                 setStage("verify");
+                toast.success("Verification code sent to your email.");
             } else {
                 toast.error("Unexpected authentication status. Please try again.");
             }
