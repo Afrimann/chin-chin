@@ -1,5 +1,3 @@
-import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { TopNav } from "@/components/customer/TopNav";
 import { MobileNav } from "@/components/customer/MobileNav";
 
@@ -8,11 +6,6 @@ export default async function CustomerLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const { userId } = await auth();
-
-    // if (!userId) {
-    //     redirect("/auth/sign-in");
-    // }
 
     return (
         <div className="flex min-h-screen flex-col bg-background">

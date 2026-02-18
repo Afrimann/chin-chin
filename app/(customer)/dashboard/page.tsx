@@ -8,9 +8,7 @@ import { PRODUCTS } from "@/lib/mock-data";
 
 export default async function CustomerHomePage() {
     const user = await currentUser();
-
-    // if (!user) return <RedirectToSignIn />;
-
+    if (!user) return <RedirectToSignIn />;
     const firstName = user?.firstName || "Friend";
 
     return (
@@ -43,15 +41,15 @@ export default async function CustomerHomePage() {
                 <section>
                     <h2 className="text-lg font-semibold mb-4 px-1">Quick Actions</h2>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-                        <Link href="/app/cart" className="block p-4 rounded-xl bg-card border shadow-sm hover:shadow-md hover:border-primary/50 transition-all group">
+                        <Link href="/dashboard/cart" className="block p-4 rounded-xl bg-card border shadow-sm hover:shadow-md hover:border-primary/50 transition-all group">
                             <ShoppingBag className="h-6 w-6 text-primary mb-2 group-hover:scale-110 transition-transform" />
                             <span className="font-medium">View Cart</span>
                         </Link>
-                        <Link href="/app/orders" className="block p-4 rounded-xl bg-card border shadow-sm hover:shadow-md hover:border-primary/50 transition-all group">
+                        <Link href="/dashboard/orders" className="block p-4 rounded-xl bg-card border shadow-sm hover:shadow-md hover:border-primary/50 transition-all group">
                             <Clock className="h-6 w-6 text-blue-500 mb-2 group-hover:scale-110 transition-transform" />
                             <span className="font-medium">Track Orders</span>
                         </Link>
-                        <Link href="/app/support" className="col-span-2 md:col-span-1 block p-4 rounded-xl bg-card border shadow-sm hover:shadow-md hover:border-primary/50 transition-all group">
+                        <Link href="/dashboard/support" className="col-span-2 md:col-span-1 block p-4 rounded-xl bg-card border shadow-sm hover:shadow-md hover:border-primary/50 transition-all group">
                             <HelpCircle className="h-6 w-6 text-green-500 mb-2 group-hover:scale-110 transition-transform" />
                             <span className="font-medium">Support</span>
                         </Link>
@@ -62,7 +60,7 @@ export default async function CustomerHomePage() {
                 <section>
                     <div className="flex items-center justify-between mb-6 px-1">
                         <h2 className="text-2xl font-bold tracking-tight">Featured Cravings</h2>
-                        <Link href="/app/products" className="text-sm font-medium text-primary hover:underline">
+                        <Link href="/dashboard/products" className="text-sm font-medium text-primary hover:underline">
                             View all
                         </Link>
                     </div>
@@ -73,7 +71,7 @@ export default async function CustomerHomePage() {
                     </div>
                     <div className="mt-8 text-center">
                         <Button variant="outline" size="lg" className="rounded-full md:hidden w-full" asChild>
-                            <Link href="/app/products">
+                            <Link href="/dashboard/products">
                                 View All Products
                             </Link>
                         </Button>

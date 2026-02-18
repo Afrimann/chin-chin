@@ -6,10 +6,10 @@ import { Home, ShoppingBag, ShoppingCart, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const links = [
-    { href: "/app", label: "Home", icon: Home },
-    { href: "/app/products", label: "Shop", icon: ShoppingBag },
-    { href: "/app/cart", label: "Cart", icon: ShoppingCart },
-    { href: "/app/orders", label: "Orders", icon: Clock },
+    { href: "/dashboard", label: "Home", icon: Home },
+    { href: "/dashboard/products", label: "Shop", icon: ShoppingBag },
+    { href: "/dashboard/cart", label: "Cart", icon: ShoppingCart },
+    { href: "/dashboard/orders", label: "Orders", icon: Clock },
 ];
 
 export function MobileNav() {
@@ -21,8 +21,8 @@ export function MobileNav() {
                 {links.map((link) => {
                     const Icon = link.icon;
                     // Exact match for home, startsWith for others
-                    const isActive = link.href === "/app"
-                        ? pathname === "/app"
+                    const isActive = link.href === "/dashboard"
+                        ? pathname === "/dashboard"
                         : pathname.startsWith(link.href);
 
                     return (

@@ -4,7 +4,7 @@ export const PRODUCTS = [
     name: "Classic Crunchy",
     description: "The original taste that started it all. Perfectly golden and crunchy.",
     price: 1500,
-    image: "/images/classic-crunchy.jpg", // Placeholder - in real app would be real URL
+    image: "/cracker-cookies.jpg", // Placeholder - in real app would be real URL
     category: "Classic",
   },
   {
@@ -12,7 +12,7 @@ export const PRODUCTS = [
     name: "Spicy Fiesta",
     description: "A kick of heat with every bite. For those who love a little spice.",
     price: 1600,
-    image: "/images/spicy-fiesta.jpg",
+    image: "/shrimp-ball.jpg",
     category: "Special",
   },
   {
@@ -20,7 +20,7 @@ export const PRODUCTS = [
     name: "Vanilla Dream",
     description: "Sweet and aromatic vanilla flavor. A perfect dessert snack.",
     price: 1600,
-    image: "/images/vanilla-dream.jpg",
+    image: "/cracker-cookies.jpg",
     category: "Sweet",
   },
   {
@@ -28,7 +28,7 @@ export const PRODUCTS = [
     name: "Coconut Bliss",
     description: "Infused with real coconut shavings for a tropical twist.",
     price: 1700,
-    image: "/images/coconut-bliss.jpg",
+    image: "/cracker-cookies.jpg",
     category: "Sweet",
   },
   {
@@ -36,7 +36,7 @@ export const PRODUCTS = [
     name: "Cinnamon Swirl",
     description: "Dusting of cinnamon sugar for a warm, comforting taste.",
     price: 1600,
-    image: "/images/cinnamon.jpg",
+    image: "/shrimp-ball.jpg",
     category: "Sweet",
   },
   {
@@ -44,7 +44,7 @@ export const PRODUCTS = [
     name: "Nutmeg Delight",
     description: "Enhanced with rich nutmeg flavor. A holiday favorite.",
     price: 1600,
-    image: "/images/nutmeg.jpg",
+    image: "/shrimp-ball.jpg",
     category: "Classic",
   },
   {
@@ -52,7 +52,7 @@ export const PRODUCTS = [
     name: "Chocolate Chip",
     description: "Mini chocolate chips embedded in every piece.",
     price: 1800,
-    image: "/images/chocolate.jpg",
+    image: "/cracker-cookies.jpg",
     category: "Sweet",
   },
   {
@@ -60,7 +60,7 @@ export const PRODUCTS = [
     name: "Ginger Snap",
     description: "Zesty ginger flavor that wakes up your taste buds.",
     price: 1600,
-    image: "/images/ginger.jpg",
+    image: "/cracker-cookies.jpg",
     category: "Special",
   },
   {
@@ -68,7 +68,7 @@ export const PRODUCTS = [
     name: "Onion & Garlic",
     description: "Savory blend of onion and garlic. Ideally paired with dips.",
     price: 1600,
-    image: "/images/onion-garlic.jpg",
+    image: "/shrimp-ball.jpg",
     category: "Savory",
   },
   {
@@ -76,7 +76,7 @@ export const PRODUCTS = [
     name: "Honey Glazed",
     description: "Sweet honey coating for a sticky, delicious treat.",
     price: 1700,
-    image: "/images/honey.jpg",
+    image: "/shrimp-ball.jpg",
     category: "Sweet",
   },
   {
@@ -84,7 +84,7 @@ export const PRODUCTS = [
     name: "Salted Caramel",
     description: "Rich caramel flavor with a hint of sea salt.",
     price: 1800,
-    image: "/images/salted-caramel.jpg",
+    image: "/cracker-cookies.jpg",
     category: "Sweet",
   },
   {
@@ -92,7 +92,7 @@ export const PRODUCTS = [
     name: "Cheese Explosion",
     description: "Savory cheese flavor that melts in your mouth.",
     price: 1700,
-    image: "/images/cheese.jpg",
+    image: "/shrimp-ball.jpg",
     category: "Savory",
   },
 ];
