@@ -61,7 +61,6 @@ export default function SignInPage() {
 
         setIsLoading(true);
 
-
         try {
             const result = await signIn.create({
                 identifier: email,
@@ -113,7 +112,6 @@ export default function SignInPage() {
         }
 
         setIsLoading(true);
-
 
         try {
             const result = await signIn.attemptSecondFactor({

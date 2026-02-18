@@ -1,10 +1,13 @@
 "use client";
 
+import Link from "next/link";
 import Image from "next/image";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { useCartStore } from "@/store/use-cart-store";
+import { toast } from "sonner";
 
 interface Product {
     id: string;
@@ -43,9 +46,28 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-                <Button className="w-full rounded-full transition-all active:scale-95" size="sm">
-                    <Plus className="mr-2 h-4 w-4" /> Add to Cart
-                </Button>
+                {useCartStore((state) => state.items.some((item) => item.id === product.id)) ? (
+                    <Button
+                        className="w-full rounded-full transition-all active:scale-95 bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                        size="sm"
+                        asChild
+                    >
+                        <Link href="/dashboard/cart">
+                            View in Cart
+                        </Link>
+                    </Button>
+                ) : (
+                    <Button
+                        className="w-full rounded-full transition-all active:scale-95"
+                        size="sm"
+                        onClick={() => {
+                            useCartStore.getState().addItem(product);
+                            toast.success(`${product.name} added to cart`);
+                        }}
+                    >
+                        <Plus className="mr-2 h-4 w-4" /> Add to Cart
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );

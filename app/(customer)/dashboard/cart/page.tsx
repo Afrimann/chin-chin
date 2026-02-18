@@ -9,31 +9,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { QuantityStepper } from "@/components/customer/QuantityStepper";
 import { PRODUCTS } from "@/lib/mock-data";
-
-// Mock initial cart state
-const INITIAL_CART = [
-    { ...PRODUCTS[0], quantity: 2 },
-    { ...PRODUCTS[2], quantity: 1 },
-];
+import { useCartStore } from "@/store/use-cart-store";
+import { AddressSelector } from "@/components/customer/AddressSelector";
 
 export default function CartPage() {
-    const [cart, setCart] = useState(INITIAL_CART);
-
-    const updateQuantity = (id: string, delta: number) => {
-        setCart(items =>
-            items.map(item => {
-                if (item.id === id) {
-                    const newQuantity = Math.max(1, item.quantity + delta);
-                    return { ...item, quantity: newQuantity };
-                }
-                return item;
-            })
-        );
-    };
-
-    const removeItem = (id: string) => {
-        setCart(items => items.filter(item => item.id !== id));
-    };
+    const { items: cart, updateQuantity, removeItem } = useCartStore();
 
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const deliveryFee = 1500;
@@ -50,7 +30,7 @@ export default function CartPage() {
                     Let's fix that! Add some delicious chin-chin to your cart and get crunching.
                 </p>
                 <Button size="lg" className="rounded-full px-8" asChild>
-                    <Link href="/app/products">Start Shopping</Link>
+                    <Link href="/dashboard/products">Start Shopping</Link>
                 </Button>
             </div>
         );
@@ -110,6 +90,11 @@ export default function CartPage() {
                             </CardContent>
                         </Card>
                     ))}
+                </div>
+
+                {/* Delivery Address */}
+                <div className="lg:col-span-2">
+                    <AddressSelector />
                 </div>
 
                 {/* Order Summary */}
