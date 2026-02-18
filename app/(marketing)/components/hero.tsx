@@ -32,7 +32,7 @@ export function Hero() {
 
             {/* Product Placeholder Circle */}
             <div className="mt-16 relative w-72 h-72 md:w-96 md:h-96 mx-auto bg-stone-100 rounded-full flex items-center justify-center border-4 border-white shadow-2xl skew-y-3 hover:skew-y-0 transition-transform duration-700">
-                <span className="text-stone-300 font-bold text-xl">Product Image</span>
+                <Image src="/shrimp-ball.jpg" alt="Chin-Chin" width={300} height={300} />
             </div>
         </section>
     )
