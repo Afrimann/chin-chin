@@ -9,8 +9,8 @@ import Link from "next/link";
 import { AuthCard } from "@/components/auth/auth-card";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthButton } from "@/components/auth/auth-button";
-import { ArrowLeft, Timer, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ArrowLeft, Timer } from "lucide-react";
+import { toast } from "sonner";
 
 export default function SignInPage() {
     const { isLoaded, signIn, setActive } = useSignIn();
@@ -23,7 +23,7 @@ export default function SignInPage() {
 
     // UI State
     const [stage, setStage] = useState<"credentials" | "verify">("credentials");
-    const [error, setError] = useState("");
+
     const [isLoading, setIsLoading] = useState(false);
 
     // Resend Timer State
@@ -60,7 +60,7 @@ export default function SignInPage() {
         if (!isLoaded) return;
 
         setIsLoading(true);
-        setError("");
+
 
         try {
             const result = await signIn.create({
@@ -77,7 +77,7 @@ export default function SignInPage() {
             if (result.status === "needs_second_factor") {
                 setStage("verify");
             } else {
-                setError("Unexpected authentication status. Please try again.");
+                toast.error("Unexpected authentication status. Please try again.");
             }
 
         } catch (err: any) {
@@ -87,11 +87,11 @@ export default function SignInPage() {
             const errorMessage = err.errors?.[0]?.longMessage;
 
             if (errorCode === "form_password_incorrect") {
-                setError("Incorrect password. Please try again.");
+                toast.error("Incorrect password. Please try again.");
             } else if (errorCode === "form_identifier_not_found") {
-                setError("No account found with this email address.");
+                toast.error("No account found with this email address.");
             } else {
-                setError(errorMessage || "Unable to sign in. Please try again.");
+                toast.error(errorMessage || "Unable to sign in. Please try again.");
             }
         } finally {
             setIsLoading(false);
@@ -104,12 +104,12 @@ export default function SignInPage() {
         if (!isLoaded) return;
 
         if (code.length !== 6) {
-            setError("Please enter a valid 6-digit code.");
+            toast.error("Please enter a valid 6-digit code.");
             return;
         }
 
         setIsLoading(true);
-        setError("");
+
 
         try {
             const result = await signIn.attemptSecondFactor({
@@ -121,16 +121,16 @@ export default function SignInPage() {
                 await setActive({ session: result.createdSessionId });
                 router.push("/dashboard");
             } else {
-                setError("Verification incomplete. Please try again.");
+                toast.error("Verification incomplete. Please try again.");
             }
         } catch (err: any) {
             const errorCode = err.errors?.[0]?.code;
             if (errorCode === "verification_code_invalid") {
-                setError("Invalid verification code.");
+                toast.error("Invalid verification code.");
             } else if (errorCode === "verification_code_expired") {
-                setError("Verification code has expired. Please request a new one.");
+                toast.error("Verification code has expired. Please request a new one.");
             } else {
-                setError("Verification failed. Please try again.");
+                toast.error("Verification failed. Please try again.");
             }
         } finally {
             setIsLoading(false);
@@ -145,17 +145,17 @@ export default function SignInPage() {
                 strategy: "email_code",
             });
             startCooldown(60);
-            setError(""); // Clear any previous errors
+            toast.success("Code sent to your email!");
             // Optional: Show success toast/message "Code resent!"
         } catch (err) {
-            setError("Failed to resend code. Please try again later.");
+            toast.error("Failed to resend code. Please try again later.");
         }
     };
 
     // Reset flow to change email
     const handleBack = () => {
         setStage("credentials");
-        setError("");
+
         setPassword(""); // Security best practice
         setCode("");
     };
@@ -170,13 +170,7 @@ export default function SignInPage() {
             >
                 <form onSubmit={stage === "credentials" ? handleSubmit : handleVerify} className="space-y-6">
 
-                    {/* Error Alert */}
-                    {error && (
-                        <Alert variant="destructive" className="bg-red-50 text-red-900 border-red-200">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
+
 
                     {stage === "credentials" && (
                         <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300">
