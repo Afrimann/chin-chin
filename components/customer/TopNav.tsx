@@ -9,10 +9,23 @@ import { Button } from "@/components/ui/button";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/use-cart-store";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 
 export function TopNav() {
     const pathname = usePathname();
-    const cartItemCount = useCartStore((state) => state.getTotalItems());
+    const { user } = useUser();
+    const { getTotalItems } = useCartStore();
+
+    // Fetch backend cart if user is logged in
+    const backendCart = useQuery(api.carts.get, user ? { userId: user.id } : "skip");
+
+    // Calculate total items: Backend if available, else local
+    const cartItemCount = user && backendCart
+        ? backendCart.items.reduce((acc, item) => acc + item.quantity, 0)
+        : getTotalItems();
+
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {

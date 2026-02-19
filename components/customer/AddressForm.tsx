@@ -16,8 +16,13 @@ import { useAddressStore } from "@/store/use-address-store";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 
+import { useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
+
 export function AddressForm() {
-    const { addAddress } = useAddressStore();
+    const { user } = useUser();
+    const addAddress = useMutation(api.addresses.add);
     const [open, setOpen] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -34,16 +39,18 @@ export function AddressForm() {
         e.preventDefault();
         setIsLoading(true);
 
+        if (!user) {
+            toast.error("Please log in to add an address");
+            setIsLoading(false);
+            return;
+        }
+
         try {
-            // Simulate network delay
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            const newAddress = {
-                id: crypto.randomUUID(),
+            await addAddress({
+                userId: user.id,
                 ...form,
-            };
+            });
 
-            addAddress(newAddress);
             toast.success("Delivery address added successfully");
             setOpen(false);
             setForm({
@@ -55,6 +62,7 @@ export function AddressForm() {
                 phone: "",
             });
         } catch (error) {
+            console.error("Failed to add address", error);
             toast.error("Failed to add address");
         } finally {
             setIsLoading(false);

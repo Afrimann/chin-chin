@@ -9,14 +9,37 @@ import { MapPin, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AddressForm } from "./AddressForm";
 import { cn } from "@/lib/utils";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
+import { Id } from "@/convex/_generated/dataModel";
 
 export function AddressSelector() {
-    const { addresses, selectedAddressId, selectAddress, removeAddress } = useAddressStore();
+    const { selectedAddressId, selectAddress } = useAddressStore(); // Keep selection state local for now
     const [mounted, setMounted] = useState(false);
+    const { user } = useUser();
+
+    const addresses = useQuery(api.addresses.get, user ? { userId: user.id } : "skip") || [];
+    const removeAddress = useMutation(api.addresses.remove);
 
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    const handleRemove = async (addressId: string) => {
+        if (!user) return;
+        try {
+            await removeAddress({ userId: user.id, addressId: addressId as Id<"addresses"> });
+            toast.success("Address removed");
+            // If the removed address was selected, clear selection (optional/logic dependent)
+            if (selectedAddressId === addressId) {
+                selectAddress('');
+            }
+        } catch (error) {
+            toast.error("Failed to remove address");
+        }
+    };
 
     if (!mounted) return null;
 
@@ -27,6 +50,9 @@ export function AddressSelector() {
                 <AddressForm />
             </CardHeader>
             <CardContent>
+                {/* Show loader if user is logged in but addresses not loaded yet? 
+                    For now, treating undefined as empty array from useQuery default above handles basic case 
+                */}
                 {addresses.length === 0 ? (
                     <div className="text-center py-6 text-muted-foreground text-sm border-2 border-dashed rounded-lg">
                         <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -41,28 +67,28 @@ export function AddressSelector() {
                     >
                         {addresses.map((address) => (
                             <div
-                                key={address.id}
+                                key={address._id}
                                 className={cn(
                                     "relative flex items-start space-x-3 rounded-lg border p-4 transition-all hover:bg-secondary/10",
-                                    selectedAddressId === address.id
+                                    selectedAddressId === address._id
                                         ? "border-primary bg-secondary/20 shadow-sm"
                                         : "border-border/50"
                                 )}
                             >
-                                <RadioGroupItem value={address.id} id={address.id} className="mt-1" />
+                                <RadioGroupItem value={address._id} id={address._id} className="mt-1" />
                                 <div className="flex-1 space-y-1">
                                     <Label
-                                        htmlFor={address.id}
+                                        htmlFor={address._id}
                                         className="font-medium cursor-pointer flex items-center gap-2"
                                     >
                                         {address.label}
-                                        {selectedAddressId === address.id && (
+                                        {selectedAddressId === address._id && (
                                             <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
                                                 Selected
                                             </span>
                                         )}
                                     </Label>
-                                    <div className="text-sm text-muted-foreground grid gap-0.5 cursor-pointer" onClick={() => selectAddress(address.id)}>
+                                    <div className="text-sm text-muted-foreground grid gap-0.5 cursor-pointer" onClick={() => selectAddress(address._id)}>
                                         <p className="font-medium text-foreground">{address.name}</p>
                                         <p>{address.street}</p>
                                         <p>
@@ -77,7 +103,7 @@ export function AddressSelector() {
                                     className="text-muted-foreground hover:text-destructive absolute top-2 right-2 h-8 w-8"
                                     onClick={(e) => {
                                         e.preventDefault();
-                                        removeAddress(address.id);
+                                        handleRemove(address._id);
                                     }}
                                 >
                                     <Trash2 className="h-4 w-4" />

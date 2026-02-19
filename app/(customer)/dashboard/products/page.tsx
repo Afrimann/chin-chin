@@ -5,8 +5,10 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/customer/ProductCard";
-import { PRODUCTS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CATEGORIES = ["All", "Classic", "Sweet", "Special", "Savory"];
 
@@ -14,12 +16,25 @@ export default function ProductsPage() {
     const [activeCategory, setActiveCategory] = useState("All");
     const [searchQuery, setSearchQuery] = useState("");
 
-    const filteredProducts = PRODUCTS.filter((product) => {
+    const products = useQuery(api.products.get);
+
+    const isLoading = products === undefined;
+
+    const filteredProducts = products?.filter((product) => {
         const matchesCategory = activeCategory === "All" || product.category === activeCategory;
         const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
         return matchesCategory && matchesSearch;
-    });
+    }) || [];
 
+    const mappedProducts = filteredProducts.map(p => ({
+        ...p,
+        id: p._id,
+        // Ensure image is a string, fallback if technically missing but covered by type
+        image: p.imageUrl || "/cracker-cookies.jpg"
+    }));
+
+    console.log(products);
+    
     return (
         <div className="container mx-auto px-4 md:px-6 py-8 pb-24 space-y-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -59,9 +74,21 @@ export default function ProductsPage() {
             </div>
 
             {/* Product Grid */}
-            {filteredProducts.length > 0 ? (
+            {isLoading ? (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
-                    {filteredProducts.map((product) => (
+                    {[...Array(8)].map((_, i) => (
+                        <div key={i} className="space-y-3">
+                            <Skeleton className="h-[200px] w-full rounded-xl" />
+                            <div className="space-y-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            ) : mappedProducts.length > 0 ? (
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6">
+                    {mappedProducts.map((product) => (
                         <ProductCard key={product.id} product={product} />
                     ))}
                 </div>

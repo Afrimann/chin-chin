@@ -8,6 +8,10 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useCartStore } from "@/store/use-cart-store";
 import { toast } from "sonner";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface Product {
     id: string;
@@ -16,6 +20,7 @@ interface Product {
     price: number;
     image: string;
     category: string;
+    imageUrl?: string | null
 }
 
 interface ProductCardProps {
@@ -24,14 +29,48 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product, className }: ProductCardProps) {
+    const { user } = useUser();
+    const addItem = useMutation(api.carts.addItem);
+    const { addItem: addToLocalCart } = useCartStore();
+
+    const handleAddToCart = async () => {
+        if (!user) {
+            toast.error("Please log in to add items to cart");
+            return;
+        }
+
+        try {
+            // Add to backend cart
+            await addItem({
+                userId: user.id,
+                productId: product.id as Id<"products">,
+                quantity: 1
+            });
+
+            // Keep local state in sync for UI (optimistic/hybrid)
+            addToLocalCart(product);
+            toast.success(`${product.name} added to cart`);
+        } catch (error) {
+            console.error("Failed to add to cart:", error);
+            toast.error("Failed to add item to cart");
+        }
+    };
+
+    const cart = useQuery(api.carts.get, user ? { userId: user.id } : "skip");
+
+    const isInCart = user
+        ? cart?.items.some((item) => item.productId === product.id)
+        : useCartStore((state) => state.items.some((item) => item.id === product.id));
+
     return (
         <Card className={cn("overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow duration-300", className)}>
             <div className="aspect-square relative bg-secondary/20">
                 <Image
-                    src={product.image}
+                    src={product.imageUrl || "/cracker-cookies.jpg"}
                     alt={product.name}
                     fill
                     className="object-cover"
+                    unoptimized
                 />
             </div>
             <CardContent className="p-4">
@@ -46,7 +85,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                 </div>
             </CardContent>
             <CardFooter className="p-4 pt-0">
-                {useCartStore((state) => state.items.some((item) => item.id === product.id)) ? (
+                {isInCart ? (
                     <Button
                         className="w-full rounded-full transition-all active:scale-95 bg-secondary text-secondary-foreground hover:bg-secondary/80"
                         size="sm"
@@ -60,10 +99,7 @@ export function ProductCard({ product, className }: ProductCardProps) {
                     <Button
                         className="w-full rounded-full transition-all active:scale-95"
                         size="sm"
-                        onClick={() => {
-                            useCartStore.getState().addItem(product);
-                            toast.success(`${product.name} added to cart`);
-                        }}
+                        onClick={handleAddToCart}
                     >
                         <Plus className="mr-2 h-4 w-4" /> Add to Cart
                     </Button>
