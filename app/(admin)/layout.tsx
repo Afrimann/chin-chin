@@ -1,6 +1,8 @@
 // import { TopNav } from "@/components/customer/TopNav";
 // import { MobileNav } from "@/components/customer/MobileNav";
 
+
+
 export default async function CustomerLayout({
     children,
 }: {
