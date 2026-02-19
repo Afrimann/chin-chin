@@ -32,6 +32,12 @@ export function ProductCard({ product, className }: ProductCardProps) {
     const { user } = useUser();
     const addItem = useMutation(api.carts.addItem);
     const { addItem: addToLocalCart } = useCartStore();
+    const cart = useQuery(api.carts.get, user ? { userId: user.id } : "skip");
+    const localCartItems = useCartStore((state) => state.items);
+
+    const isInCart = user
+        ? cart?.items.some((item) => item.productId === product.id)
+        : localCartItems.some((item) => item.id === product.id);
 
     const handleAddToCart = async () => {
         if (!user) {
@@ -55,12 +61,6 @@ export function ProductCard({ product, className }: ProductCardProps) {
             toast.error("Failed to add item to cart");
         }
     };
-
-    const cart = useQuery(api.carts.get, user ? { userId: user.id } : "skip");
-
-    const isInCart = user
-        ? cart?.items.some((item) => item.productId === product.id)
-        : useCartStore((state) => state.items.some((item) => item.id === product.id));
 
     return (
         <Card className={cn("overflow-hidden border-none shadow-sm hover:shadow-md transition-shadow duration-300", className)}>
