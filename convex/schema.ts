@@ -64,7 +64,8 @@ export default defineSchema({
       v.literal("Preparing"),
       v.literal("OutForDelivery"),
       v.literal("Delivered"),
-      v.literal("Cancelled")
+      v.literal("Cancelled"),
+      v.literal("Expired")
     ),
 
     totalAmount: v.number(), // in kobo
@@ -76,10 +77,11 @@ export default defineSchema({
       v.literal("Failed")
     ),
 
-    // Payment reference (internal or external ID if needed)
+    // Payment reference
     paymentId: v.optional(v.string()),
 
-    createdAt: v.number(), // timestamp
+    createdAt: v.number(),
+    expiresAt: v.optional(v.number()),
   }).index("by_user", ["userId"]),
 
   // Line items for orders (snapshot of product details)

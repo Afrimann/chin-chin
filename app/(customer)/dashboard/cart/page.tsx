@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { QuantityStepper } from "@/components/customer/QuantityStepper";
-import { PRODUCTS } from "@/lib/mock-data";
 import { useCartStore } from "@/store/use-cart-store";
 import { AddressSelector } from "@/components/customer/AddressSelector";
 import { CheckoutModal } from "@/components/customer/CheckoutModal";
@@ -194,7 +193,14 @@ export default function CartPage() {
                                         <span>₦{total.toLocaleString()}</span>
                                     </div>
                                 </div>
-                                <CheckoutModal hasAddress={!!selectedAddressId}>
+                                <CheckoutModal
+                                    hasAddress={!!selectedAddressId}
+                                    userId={user?.id || ""}
+                                    selectedAddressId={selectedAddressId}
+                                    totalAmount={total}
+                                    email={user?.primaryEmailAddress?.emailAddress}
+                                    customerName={user?.firstName + ' ' + user?.lastName}
+                                >
                                     <Button className="w-full mt-6 rounded-full" size="lg">
                                         Proceed to Checkout
                                     </Button>
@@ -214,7 +220,14 @@ export default function CartPage() {
                     <span className="text-muted-foreground text-sm">Total</span>
                     <span className="font-bold text-lg">₦{total.toLocaleString()}</span>
                 </div>
-                <CheckoutModal hasAddress={!!selectedAddressId}>
+                <CheckoutModal
+                    hasAddress={!!selectedAddressId}
+                    userId={user?.id || ""}
+                    selectedAddressId={selectedAddressId}
+                    totalAmount={total}
+                    email={user?.primaryEmailAddress?.emailAddress}
+                    customerName={user?.firstName + ' ' + user?.lastName}
+                >
                     <Button className="w-full rounded-full" size="lg">
                         Checkout
                     </Button>

@@ -7,10 +7,12 @@ interface StatusBadgeProps {
 
 const statusStyles = {
     Pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    Paid: "bg-green-100 text-green-800 border-green-200",
     Confirmed: "bg-blue-100 text-blue-800 border-blue-200",
     Preparing: "bg-orange-100 text-orange-800 border-orange-200",
+    OutForDelivery: "bg-purple-100 text-purple-800 border-purple-200",
     "Out for Delivery": "bg-purple-100 text-purple-800 border-purple-200",
-    Delivered: "bg-green-100 text-green-800 border-green-200",
+    Delivered: "bg-green-600 text-white border-green-700",
     Cancelled: "bg-red-100 text-red-800 border-red-200",
 };
 

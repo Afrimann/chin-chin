@@ -10,14 +10,71 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Mail, ShoppingBag, MapPin } from "lucide-react";
-import Link from "next/link";
+import { useState } from "react";
+import { useMutation, useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
+import PaystackButton from "../paystack/PaystackButton";
 
 interface CheckoutModalProps {
     children: React.ReactNode;
     hasAddress?: boolean;
+    userId: string;
+    selectedAddressId: string | null;
+    totalAmount: number; // in Naira
+    email: string | undefined
+    customerName: string
 }
 
-export function CheckoutModal({ children, hasAddress = true }: CheckoutModalProps) {
+export function CheckoutModal({ children, hasAddress = true, userId, selectedAddressId, totalAmount, email, customerName }: CheckoutModalProps) {
+    const [open, setOpen] = useState(false);
+    const [isCreatingOrder, setIsCreatingOrder] = useState(false);
+    const [orderId, setOrderId] = useState<string | null>(null);
+    const createOrderMutation = useMutation(api.orders.create);
+    const router = useRouter();
+
+    // Fetch address details for snapshot
+    const addresses = useQuery(api.addresses.get, { userId });
+    const selectedAddress = addresses?.find(a => a._id === selectedAddressId);
+
+    // Fallbacks to prevent null issues in Paystack
+    const safeEmail = email || "";
+    const safeName = customerName || "Customer";
+
+    const handleCreateOrder = async () => {
+        if (!selectedAddress) {
+            toast.error("Please select a delivery address");
+            return;
+        }
+
+        const deliveryFee = 1500; // Match CartPage.tsx
+
+        setIsCreatingOrder(true);
+        try {
+            console.log("Creating order for user:", userId);
+            const id = await createOrderMutation({
+                userId,
+                deliveryFee,
+                deliveryAddress: {
+                    name: selectedAddress.name,
+                    street: selectedAddress.street,
+                    city: selectedAddress.city,
+                    state: selectedAddress.state,
+                    phone: selectedAddress.phone,
+                },
+            });
+            setOrderId(id);
+            toast.success("Order initiated! Click below to pay.");
+        } catch (error) {
+            console.error("Failed to create order:", error);
+            toast.error("Failed to initiate order. Please try again.");
+        } finally {
+            setIsCreatingOrder(false);
+        }
+    };
+
     if (!hasAddress) {
         return (
             <Dialog>
@@ -47,47 +104,97 @@ export function CheckoutModal({ children, hasAddress = true }: CheckoutModalProp
     }
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={(val) => {
+            setOpen(val);
+            if (!val) {
+                // Reset order creation state when modal closes
+                setOrderId(null);
+            }
+        }}>
             <DialogTrigger asChild>
                 {children}
             </DialogTrigger>
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <ShoppingBag className="h-5 w-5 text-primary" />
-                        Checkout Coming Soon
+                        {orderId ? (
+                            <CheckCircle className="h-5 w-5 text-green-500" />
+                        ) : (
+                            <ShoppingBag className="h-5 w-5 text-primary" />
+                        )}
+                        {orderId ? "Order Created!" : "Confirm Your Order"}
                     </DialogTitle>
                     <DialogDescription>
-                        We are currently setting up our secure payment gateway to serve you better.
+                        {orderId
+                            ? "Your order has been initiated. Click below to complete your payment securely."
+                            : "Review your order details before confirming."}
                     </DialogDescription>
                 </DialogHeader>
-                <div className="flex flex-col items-center justify-center space-y-4 py-4 text-center">
-                    <div className="bg-secondary/20 p-4 rounded-full">
-                        <Mail className="h-8 w-8 text-primary" />
+
+                <div className="space-y-4 py-4">
+                    <div className="bg-secondary/20 p-4 rounded-lg space-y-2">
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Order Total:</span>
+                            <span className="font-bold">₦{totalAmount.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">Payment Method:</span>
+                            <span className="font-medium">Paystack (Secure Online Payment)</span>
+                        </div>
                     </div>
-                    <div className="space-y-2">
-                        <p className="font-medium text-foreground">
-                            Ready to order?
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                            Please reach out to us directly to place your order manually.
-                        </p>
-                        <a
-                            href="mailto:orders@chinchin.com"
-                            className="inline-flex items-center gap-2 text-primary font-bold hover:underline mt-2 p-2 bg-primary/5 rounded-md"
-                        >
-                            orders@chinchin.com
-                        </a>
-                    </div>
+
+                    {selectedAddress && !orderId && (
+                        <div className="space-y-1">
+                            <h4 className="text-sm font-semibold">Delivery Address</h4>
+                            <p className="text-xs text-muted-foreground">
+                                {selectedAddress.name}<br />
+                                {selectedAddress.street}, {selectedAddress.city}<br />
+                                {selectedAddress.state}<br />
+                                {selectedAddress.phone}
+                            </p>
+                        </div>
+                    )}
                 </div>
-                <div className="flex justify-end gap-2">
-                    <Button variant="outline" asChild>
-                        <Link href="/dashboard/products">
-                            Explore More Products
-                        </Link>
+
+                <div className="flex flex-col gap-2">
+                    {!orderId ? (
+                        <Button
+                            className="w-full rounded-full"
+                            size="lg"
+                            onClick={handleCreateOrder}
+                            disabled={isCreatingOrder}
+                        >
+                            {isCreatingOrder ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Creating Order...
+                                </>
+                            ) : (
+                                "Place Order and Pay"
+                            )}
+                        </Button>
+                    ) : (
+                        <div onClick={() => setOpen(false)}>
+                            <PaystackButton
+                                amount={totalAmount * 100} // Convert to kobo
+                                email={safeEmail}
+                                name={safeName}
+                                orderId={orderId}
+                            />
+                        </div>
+                    )}
+
+                    <Button
+                        variant="outline"
+                        onClick={() => setOpen(false)}
+                        className="w-full rounded-full"
+                    >
+                        {orderId ? "Close and Pay Later" : "Cancel"}
                     </Button>
                 </div>
             </DialogContent>
         </Dialog>
     );
 }
+
+import { CheckCircle } from "lucide-react";
