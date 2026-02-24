@@ -10,6 +10,7 @@
 
 import type * as addresses from "../addresses.js";
 import type * as carts from "../carts.js";
+import type * as chat from "../chat.js";
 import type * as orders from "../orders.js";
 import type * as products from "../products.js";
 
@@ -22,6 +23,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   addresses: typeof addresses;
   carts: typeof carts;
+  chat: typeof chat;
   orders: typeof orders;
   products: typeof products;
 }>;

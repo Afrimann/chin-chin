@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/sonner";
 import LayoutWrapper from "@/components/LayoutWrapper";
 import PaystackProvider from "@/components/paystack/PaystackProvider";
 import Script from "next/script";
+import { AIChatbot } from "@/components/customer/AIChatbot";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair" });
@@ -30,6 +31,7 @@ export default function RootLayout({
           />
           <LayoutWrapper>
             {children}
+            <AIChatbot />
             <Toaster />
           </LayoutWrapper>
         </body>

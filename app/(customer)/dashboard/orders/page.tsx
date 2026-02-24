@@ -1,17 +1,14 @@
 'use client'
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
-import { useUser } from "@clerk/nextjs";
 import { OrderCard } from "@/components/customer/OrderCard";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Clock, ShoppingBag } from "lucide-react";
+import { useOrders } from "@/app/hooks/useOrders";
+import { useRouter } from "next/navigation";
 
 export default function OrdersPage() {
-    const { user } = useUser();
-    const orders = useQuery(api.orders.getWithItems, user ? { userId: user.id } : "skip");
-
-    const isLoading = orders === undefined;
+    const { orders, isLoading, isAuthenticated } = useOrders()
+    const router = useRouter()
 
     if (isLoading) {
         return (
@@ -25,6 +22,9 @@ export default function OrdersPage() {
         );
     }
 
+    if (!isAuthenticated) {
+        router.replace('/auth/sign-in')
+    }
     return (
         <div className="container mx-auto px-4 md:px-6 py-8 pb-24 space-y-8">
             <div>
@@ -36,13 +36,13 @@ export default function OrdersPage() {
 
             {orders && orders.length > 0 ? (
                 <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {orders.map((order) => (
+                    {orders.map((order: any) => (
                         <OrderCard key={order._id} order={{
                             id: order._id.slice(-6).toUpperCase(),
                             date: new Date(order.createdAt).toISOString(),
                             status: order.status as any,
                             total: order.totalAmount / 100,
-                            items: order.items.map(item => ({
+                            items: order.items.map((item: any) => ({
                                 name: item.productName,
                                 quantity: item.quantity
                             })),

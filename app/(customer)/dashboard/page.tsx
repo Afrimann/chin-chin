@@ -1,15 +1,30 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { RedirectToSignIn } from "@clerk/nextjs";
+"use client";
+
+import { useUser } from "@clerk/nextjs";
 import Link from "next/link";
 import { ArrowRight, ShoppingBag, Clock, HelpCircle, Truck, ShieldCheck, Leaf } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ProductCard } from "@/components/customer/ProductCard";
-import { PRODUCTS } from "@/lib/mock-data";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default async function CustomerHomePage() {
-    const user = await currentUser();
-    if (!user) return <RedirectToSignIn />;
+export default function CustomerHomePage() {
+    const { user, isLoaded } = useUser();
+    const products = useQuery(api.products.get);
+
+    if (!isLoaded) return null;
+    if (!user) return null; // Should be handled by layout/middleware
+
     const firstName = user?.firstName || "Friend";
+    const isLoadingProducts = products === undefined;
+
+    // Take first 8 products for "Featured"
+    const featuredProducts = products?.slice(0, 8).map(p => ({
+        ...p,
+        id: p._id,
+        image: p.imageUrl || "/cracker-cookies.jpg"
+    })) || [];
 
     return (
         <div className="space-y-8 pb-20">
@@ -64,11 +79,31 @@ export default async function CustomerHomePage() {
                             View all
                         </Link>
                     </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
-                        {PRODUCTS.slice(0, 8).map((product) => (
-                            <ProductCard key={product.id} product={product} />
-                        ))}
-                    </div>
+
+                    {isLoadingProducts ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+                            {[...Array(4)].map((_, i) => (
+                                <div key={i} className="space-y-3">
+                                    <Skeleton className="h-[200px] w-full rounded-xl" />
+                                    <div className="space-y-2">
+                                        <Skeleton className="h-4 w-3/4" />
+                                        <Skeleton className="h-4 w-1/2" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    ) : featuredProducts.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+                            {featuredProducts.map((product) => (
+                                <ProductCard key={product.id} product={product} />
+                            ))}
+                        </div>
+                    ) : (
+                        <div className="text-center py-10 bg-secondary/20 rounded-2xl">
+                            <p className="text-muted-foreground">Our ovens are warming up! Check back soon for snacks. 🍪</p>
+                        </div>
+                    )}
+
                     <div className="mt-8 text-center">
                         <Button variant="outline" size="lg" className="rounded-full md:hidden w-full" asChild>
                             <Link href="/dashboard/products">
@@ -80,7 +115,7 @@ export default async function CustomerHomePage() {
 
                 {/* Benefits */}
                 <section className="bg-secondary/50 rounded-2xl p-6 md:p-10">
-                    <h2 className="text-xl font-bold mb-6 text-center">Why Choost Us?</h2>
+                    <h2 className="text-xl font-bold mb-6 text-center">Why Choose Us?</h2>
                     <div className="grid md:grid-cols-3 gap-6 md:gap-8">
                         <div className="flex flex-col items-center text-center p-4">
                             <div className="h-12 w-12 rounded-full bg-background flex items-center justify-center mb-3 shadow-sm">
@@ -109,3 +144,4 @@ export default async function CustomerHomePage() {
         </div>
     );
 }
+

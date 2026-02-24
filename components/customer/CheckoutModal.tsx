@@ -9,14 +9,14 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Mail, ShoppingBag, MapPin } from "lucide-react";
+import {  ShoppingBag, MapPin } from "lucide-react";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 import PaystackButton from "../paystack/PaystackButton";
+import { CheckCircle } from "lucide-react";
 
 interface CheckoutModalProps {
     children: React.ReactNode;
@@ -33,7 +33,6 @@ export function CheckoutModal({ children, hasAddress = true, userId, selectedAdd
     const [isCreatingOrder, setIsCreatingOrder] = useState(false);
     const [orderId, setOrderId] = useState<string | null>(null);
     const createOrderMutation = useMutation(api.orders.create);
-    const router = useRouter();
 
     // Fetch address details for snapshot
     const addresses = useQuery(api.addresses.get, { userId });
@@ -197,4 +196,3 @@ export function CheckoutModal({ children, hasAddress = true, userId, selectedAdd
     );
 }
 
-import { CheckCircle } from "lucide-react";
